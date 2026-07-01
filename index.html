@@ -148,9 +148,6 @@
       <div><h1>오늘의 동선</h1></div>
     </div>
     <p class="sub">장소 이름을 입력하면 정확한 곳인지 지도에서 확인하고, 방문 순서대로 동선을 짜드려요.</p>
-    <div class="hint">
-      지도를 띄우려면 카카오 JavaScript 키가 필요해요. 이 파일 맨 아래 <b>&lt;script&gt;</b> 태그의 <b>YOUR_KAKAO_APP_KEY</b> 부분을 발급받은 키로 바꿔주세요.
-    </div>
     <div class="search-row">
       <input type="text" id="searchInput" placeholder="예: 망원동 카페, 경복궁" />
       <button class="btn-primary" id="searchBtn">검색</button>
@@ -359,6 +356,6 @@
     if(typeof kakao === 'undefined') document.getElementById('mapBanner').classList.add('show');
   });
 </script>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_APP_KEY&libraries=services" onload="initMap()" onerror="document.getElementById('mapBanner').classList.add('show')"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ae2f607d2457a2fb67d984328dede539&libraries=services" onload="initMap()" onerror="document.getElementById('mapBanner').classList.add('show')"></script>
 </body>
 </html>
