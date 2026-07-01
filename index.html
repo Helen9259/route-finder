@@ -71,6 +71,13 @@
     font-size:13px; font-weight:600;
   }
   .btn-ghost:hover{ border-color:var(--ink-soft); color:var(--ink); }
+  .btn-share{
+    background:var(--navy); color:#fff; padding:10px 14px;
+    border-radius:10px; font-size:13px; font-weight:600;
+    transition:filter .15s;
+  }
+  .btn-share:hover{ filter:brightness(1.15); }
+  .btn-share:disabled{ background:#cfc8ba; cursor:not-allowed; }
   .results{ display:flex; flex-direction:column; gap:8px; }
   .result-card{
     background:#fff; border:1px solid var(--paper-line); border-radius:12px;
@@ -119,8 +126,15 @@
     font-size:13px; color:var(--ink-soft); text-align:center; padding:18px 10px;
     border:1px dashed var(--paper-line); border-radius:12px; background:#fff;
   }
-  .actions-row{ display:flex; gap:8px; margin-top:4px; }
-  .actions-row > *{ flex:1; }
+  .actions-row{ display:flex; gap:8px; margin-top:4px; flex-wrap:wrap; }
+  .actions-row > *{ flex:1; min-width:80px; }
+  .toast{
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:10px 20px; border-radius:10px;
+    font-size:13px; font-weight:600; opacity:0; pointer-events:none;
+    transition:opacity .2s, transform .2s; z-index:9999;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
   .map-wrap{ flex:1; position:relative; min-height:360px; }
   #map{ position:absolute; inset:0; }
 </style>
@@ -147,6 +161,7 @@
     </div>
     <div class="actions-row">
       <button class="btn-ghost" id="optimizeBtn">동선 최적화</button>
+      <button class="btn-share" id="shareBtn" disabled>공유하기</button>
       <button class="btn-ghost" id="resetBtn">초기화</button>
     </div>
   </div>
@@ -154,6 +169,7 @@
     <div id="map"></div>
   </div>
 </div>
+<div class="toast" id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -181,6 +197,44 @@
     const la1 = a.lat * Math.PI/180, la2 = b.lat * Math.PI/180;
     const h = Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;
     return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // 공유 링크 생성 & 복사
+  function shareItinerary(){
+    if(stops.length === 0) return;
+    try {
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(stops))));
+      const url = `${location.origin}${location.pathname}#s=${encoded}`;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('공유 링크가 클립보드에 복사됐어요!');
+      }).catch(() => {
+        prompt('아래 링크를 복사하세요:', url);
+      });
+    } catch(e) {
+      showToast('공유 링크 생성에 실패했어요.');
+    }
+  }
+
+  // URL 해시에서 공유 동선 불러오기
+  function loadFromHash(){
+    const hash = location.hash;
+    if(!hash.startsWith('#s=')) return;
+    try {
+      const encoded = hash.slice(3);
+      const loaded = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+      if(Array.isArray(loaded) && loaded.length > 0){
+        stops = loaded;
+        renderItinerary();
+        showToast(`${stops.length}곳의 공유 동선을 불러왔어요!`);
+      }
+    } catch(e) {}
   }
 
   async function doSearch(){
@@ -222,7 +276,6 @@
         b.addEventListener('click', () => addStop(lastResults[parseInt(b.dataset.idx, 10)]));
       });
 
-      // 첫 번째 결과로 지도 이동
       const first = lastResults[0];
       if(first) map.setView([parseFloat(first.y), parseFloat(first.x)], 15);
 
@@ -280,10 +333,13 @@
   function renderItinerary(){
     const listEl = document.getElementById('itineraryList');
     const statsEl = document.getElementById('stats');
+    const shareBtn = document.getElementById('shareBtn');
     listEl.innerHTML = '';
+
     if(stops.length === 0){
       listEl.innerHTML = '<div class="empty">검색 후 장소를 추가하면 여기에 순서대로 쌓여요</div>';
       statsEl.textContent = '아직 추가된 장소가 없어요';
+      shareBtn.disabled = true;
     } else {
       stops.forEach((s, i) => {
         const legDist = i < stops.length - 1 ? haversine(s, stops[i+1]) : null;
@@ -304,6 +360,8 @@
         listEl.appendChild(div);
       });
       statsEl.textContent = `${stops.length}곳 · 총 직선거리 약 ${totalDistanceKm().toFixed(1)}km`;
+      shareBtn.disabled = false;
+
       listEl.querySelectorAll('.icon-btn').forEach(b => {
         b.addEventListener('click', () => {
           const i = parseInt(b.dataset.i, 10);
@@ -352,13 +410,16 @@
   document.getElementById('searchBtn').addEventListener('click', doSearch);
   document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
   document.getElementById('optimizeBtn').addEventListener('click', optimizeRoute);
+  document.getElementById('shareBtn').addEventListener('click', shareItinerary);
   document.getElementById('resetBtn').addEventListener('click', () => {
     stops = [];
     document.getElementById('results').innerHTML = '';
+    history.replaceState(null, '', location.pathname);
     renderItinerary();
   });
 
   initMap();
+  loadFromHash();
 </script>
 </body>
 </html>
