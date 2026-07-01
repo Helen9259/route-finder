@@ -184,9 +184,10 @@
 
   function initMap(){
     map = L.map('map').setView(SEOUL, 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20
     }).addTo(map);
   }
 
@@ -206,7 +207,6 @@
     setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  // 공유 링크 생성 & 복사
   function shareItinerary(){
     if(stops.length === 0) return;
     try {
@@ -222,7 +222,6 @@
     }
   }
 
-  // URL 해시에서 공유 동선 불러오기
   function loadFromHash(){
     const hash = location.hash;
     if(!hash.startsWith('#s=')) return;
