@@ -134,7 +134,7 @@
     </div>
     <p class="sub">장소 이름을 입력하면 정확한 곳인지 지도에서 확인하고, 방문 순서대로 동선을 짜드려요.</p>
     <div class="search-row">
-      <input type="text" id="searchInput" placeholder="예: 경복궁, 망원한강공원" />
+      <input type="text" id="searchInput" placeholder="예: 망원동 카페, 경복궁" />
       <button class="btn-primary" id="searchBtn">검색</button>
     </div>
     <div class="results" id="results"></div>
@@ -157,13 +157,14 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  const KAKAO_REST_KEY = '4d91392619c8cc6a9f1e9e1cd93b5224';
+  const SEOUL = [37.5665, 126.9780];
+
   let map;
   let markers = [];
   let polyline = null;
   let stops = [];
   let lastResults = [];
-
-  const SEOUL = [37.5665, 126.9780];
 
   function initMap(){
     map = L.map('map').setView(SEOUL, 12);
@@ -189,29 +190,29 @@
     btn.disabled = true; btn.textContent = '검색 중…';
 
     try {
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&accept-language=ko&countrycodes=kr`;
-      const res = await fetch(url, { headers: { 'Accept-Language': 'ko' } });
+      const center = map.getCenter();
+      const url = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(q)}&x=${center.lng}&y=${center.lat}&radius=20000&size=6`;
+      const res = await fetch(url, {
+        headers: { 'Authorization': `KakaoAK ${KAKAO_REST_KEY}` }
+      });
       const data = await res.json();
-
       const el = document.getElementById('results');
       el.innerHTML = '';
 
-      if(!data.length){
+      if(!data.documents || data.documents.length === 0){
         el.innerHTML = '<div class="empty">검색 결과가 없어요. 다른 이름으로 시도해보세요.</div>';
         return;
       }
 
-      lastResults = data;
-      data.forEach((place, idx) => {
-        const name = place.name || place.display_name.split(',')[0];
-        const addr = place.display_name;
+      lastResults = data.documents;
+      lastResults.forEach((place, idx) => {
         const card = document.createElement('div');
         card.className = 'result-card';
         card.innerHTML = `
           <div class="result-info">
-            <div class="name">${name}</div>
-            <div class="addr">${addr}</div>
-            ${place.type ? `<div class="cat">${place.type}</div>` : ''}
+            <div class="name">${place.place_name}</div>
+            <div class="addr">${place.road_address_name || place.address_name}</div>
+            ${place.category_group_name ? `<div class="cat">${place.category_group_name}</div>` : ''}
           </div>
           <button class="add-btn" data-idx="${idx}">동선에 추가</button>`;
         el.appendChild(card);
@@ -222,9 +223,9 @@
       });
 
       // 첫 번째 결과로 지도 이동
-      if(data[0]){
-        map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 15);
-      }
+      const first = lastResults[0];
+      if(first) map.setView([parseFloat(first.y), parseFloat(first.x)], 15);
+
     } catch(e) {
       document.getElementById('results').innerHTML = '<div class="empty">검색 중 오류가 발생했어요. 잠시 후 다시 시도해보세요.</div>';
     } finally {
@@ -233,12 +234,11 @@
   }
 
   function addStop(place){
-    const name = place.name || place.display_name.split(',')[0];
     stops.push({
-      name,
-      addr: place.display_name,
-      lat: parseFloat(place.lat),
-      lng: parseFloat(place.lon)
+      name: place.place_name,
+      addr: place.road_address_name || place.address_name,
+      lat: parseFloat(place.y),
+      lng: parseFloat(place.x)
     });
     renderItinerary();
   }
@@ -335,22 +335,18 @@
     stops.forEach((s, i) => {
       const pos = [s.lat, s.lng];
       const marker = L.marker(pos, { icon: makeIcon(i) }).addTo(map);
-      marker.bindPopup(`<b>${s.name}</b>`);
+      marker.bindPopup(`<b>${s.name}</b><br>${s.addr}`);
       markers.push(marker);
       latlngs.push(pos);
     });
 
     if(latlngs.length > 1){
       polyline = L.polyline(latlngs, {
-        color: '#BD5333',
-        weight: 3,
-        opacity: 0.85,
-        dashArray: '8, 6'
+        color: '#BD5333', weight: 3, opacity: 0.85, dashArray: '8, 6'
       }).addTo(map);
     }
 
-    const group = L.featureGroup(markers);
-    map.fitBounds(group.getBounds().pad(0.15));
+    map.fitBounds(L.featureGroup(markers).getBounds().pad(0.15));
   }
 
   document.getElementById('searchBtn').addEventListener('click', doSearch);
