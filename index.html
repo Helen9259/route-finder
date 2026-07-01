@@ -6,6 +6,7 @@
 <title>오늘의 동선 — 장소 확인 & 동선 플래너</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   :root{
     --paper:#FAF7F1;
@@ -13,12 +14,10 @@
     --ink:#241F1A;
     --ink-soft:#6B6457;
     --clay:#BD5333;
-    --clay-soft:#E8C9BC;
     --navy:#2B3F4F;
     --gold:#C79A2E;
     --sage:#5C7A63;
     --card-shadow: 0 1px 0 rgba(36,31,26,0.06), 0 8px 20px -12px rgba(36,31,26,0.25);
-    --radius: 14px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;height:100%;}
@@ -72,12 +71,6 @@
     font-size:13px; font-weight:600;
   }
   .btn-ghost:hover{ border-color:var(--ink-soft); color:var(--ink); }
-  .hint{
-    font-size:12px; color:var(--ink-soft); background:#fff;
-    border:1px dashed var(--paper-line); border-radius:10px;
-    padding:10px 12px; line-height:1.6;
-  }
-  .hint b{ color:var(--clay); }
   .results{ display:flex; flex-direction:column; gap:8px; }
   .result-card{
     background:#fff; border:1px solid var(--paper-line); border-radius:12px;
@@ -89,8 +82,8 @@
     from{ opacity:0; transform:translateY(6px); }
     to{ opacity:1; transform:translateY(0); }
   }
-  .result-info .name{ font-weight:700; font-size:14.5px; margin-bottom:2px; }
-  .result-info .addr{ font-size:12px; color:var(--ink-soft); }
+  .result-info .name{ font-weight:700; font-size:14px; margin-bottom:2px; }
+  .result-info .addr{ font-size:11.5px; color:var(--ink-soft); }
   .result-info .cat{ font-size:11px; color:var(--sage); margin-top:2px; }
   .add-btn{
     background:var(--navy); color:#fff; border-radius:8px;
@@ -129,15 +122,7 @@
   .actions-row{ display:flex; gap:8px; margin-top:4px; }
   .actions-row > *{ flex:1; }
   .map-wrap{ flex:1; position:relative; min-height:360px; }
-  #map{ position:absolute; inset:0; background:#EFEAE0; }
-  .map-banner{
-    position:absolute; top:14px; left:14px; right:14px; background:#fff;
-    border:1px solid var(--paper-line); border-radius:10px; padding:10px 14px;
-    font-size:12.5px; color:var(--ink-soft); box-shadow:var(--card-shadow);
-    z-index:5; display:none;
-  }
-  .map-banner.show{ display:block; }
-  .map-banner b{ color:var(--clay); }
+  #map{ position:absolute; inset:0; }
 </style>
 </head>
 <body>
@@ -149,7 +134,7 @@
     </div>
     <p class="sub">장소 이름을 입력하면 정확한 곳인지 지도에서 확인하고, 방문 순서대로 동선을 짜드려요.</p>
     <div class="search-row">
-      <input type="text" id="searchInput" placeholder="예: 망원동 카페, 경복궁" />
+      <input type="text" id="searchInput" placeholder="예: 경복궁, 망원한강공원" />
       <button class="btn-primary" id="searchBtn">검색</button>
     </div>
     <div class="results" id="results"></div>
@@ -158,7 +143,7 @@
       <span class="stats" id="stats">아직 추가된 장소가 없어요</span>
     </div>
     <div class="itinerary-list" id="itineraryList">
-      <div class="empty" id="emptyMsg">검색 후 장소를 추가하면 여기에 순서대로 쌓여요</div>
+      <div class="empty">검색 후 장소를 추가하면 여기에 순서대로 쌓여요</div>
     </div>
     <div class="actions-row">
       <button class="btn-ghost" id="optimizeBtn">동선 최적화</button>
@@ -166,19 +151,27 @@
     </div>
   </div>
   <div class="map-wrap">
-    <div class="map-banner" id="mapBanner">
-      지도를 불러오지 못했어요. <b>카카오 JavaScript 키</b>가 비어있거나, 이 사이트의 도메인이 Kakao Developers 콘솔에 등록되어 있지 않을 수 있어요.
-    </div>
     <div id="map"></div>
   </div>
 </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  let map, ps;
+  let map;
   let markers = [];
   let polyline = null;
   let stops = [];
   let lastResults = [];
-  const SEOUL_CENTER = { lat: 37.5665, lng: 126.9780 };
+
+  const SEOUL = [37.5665, 126.9780];
+
+  function initMap(){
+    map = L.map('map').setView(SEOUL, 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19
+    }).addTo(map);
+  }
 
   function haversine(a, b){
     const R = 6371;
@@ -189,58 +182,63 @@
     return 2 * R * Math.asin(Math.sqrt(h));
   }
 
-  function initMap(){
-    const container = document.getElementById('map');
-    map = new kakao.maps.Map(container, {
-      center: new kakao.maps.LatLng(SEOUL_CENTER.lat, SEOUL_CENTER.lng),
-      level: 7
-    });
-    ps = new kakao.maps.services.Places();
-  }
-
-  function doSearch(){
+  async function doSearch(){
     const q = document.getElementById('searchInput').value.trim();
     if(!q) return;
-    if(typeof kakao === 'undefined' || !ps){
-      document.getElementById('mapBanner').classList.add('show');
-      return;
-    }
     const btn = document.getElementById('searchBtn');
     btn.disabled = true; btn.textContent = '검색 중…';
-    ps.keywordSearch(q, function(data, status){
-      btn.disabled = false; btn.textContent = '검색';
+
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&accept-language=ko&countrycodes=kr`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'ko' } });
+      const data = await res.json();
+
       const el = document.getElementById('results');
       el.innerHTML = '';
-      if(status !== kakao.maps.services.Status.OK || data.length === 0){
+
+      if(!data.length){
         el.innerHTML = '<div class="empty">검색 결과가 없어요. 다른 이름으로 시도해보세요.</div>';
         return;
       }
-      lastResults = data.slice(0, 6);
-      lastResults.forEach((place, idx) => {
+
+      lastResults = data;
+      data.forEach((place, idx) => {
+        const name = place.name || place.display_name.split(',')[0];
+        const addr = place.display_name;
         const card = document.createElement('div');
         card.className = 'result-card';
         card.innerHTML = `
           <div class="result-info">
-            <div class="name">${place.place_name}</div>
-            <div class="addr">${place.road_address_name || place.address_name}</div>
-            ${place.category_group_name ? `<div class="cat">${place.category_group_name}</div>` : ''}
+            <div class="name">${name}</div>
+            <div class="addr">${addr}</div>
+            ${place.type ? `<div class="cat">${place.type}</div>` : ''}
           </div>
           <button class="add-btn" data-idx="${idx}">동선에 추가</button>`;
         el.appendChild(card);
       });
+
       el.querySelectorAll('.add-btn').forEach(b => {
         b.addEventListener('click', () => addStop(lastResults[parseInt(b.dataset.idx, 10)]));
       });
-    }, { location: new kakao.maps.LatLng(SEOUL_CENTER.lat, SEOUL_CENTER.lng), radius: 20000 });
+
+      // 첫 번째 결과로 지도 이동
+      if(data[0]){
+        map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 15);
+      }
+    } catch(e) {
+      document.getElementById('results').innerHTML = '<div class="empty">검색 중 오류가 발생했어요. 잠시 후 다시 시도해보세요.</div>';
+    } finally {
+      btn.disabled = false; btn.textContent = '검색';
+    }
   }
 
   function addStop(place){
+    const name = place.name || place.display_name.split(',')[0];
     stops.push({
-      name: place.place_name,
-      addr: place.road_address_name || place.address_name,
-      cat: place.category_group_name || '',
-      lat: parseFloat(place.y),
-      lng: parseFloat(place.x)
+      name,
+      addr: place.display_name,
+      lat: parseFloat(place.lat),
+      lng: parseFloat(place.lon)
     });
     renderItinerary();
   }
@@ -318,30 +316,41 @@
     drawMap();
   }
 
-  function drawMap(){
-    if(typeof kakao === 'undefined' || !map) return;
-    markers.forEach(m => m.setMap(null));
-    markers = [];
-    if(polyline) polyline.setMap(null);
-    if(stops.length === 0) return;
-    const bounds = new kakao.maps.LatLngBounds();
-    const path = [];
-    stops.forEach((s, i) => {
-      const pos = new kakao.maps.LatLng(s.lat, s.lng);
-      const content = document.createElement('div');
-      content.style.cssText = `width:28px;height:28px;border-radius:50%;background:${i===0?'#BD5333':'#2B3F4F'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:Pretendard,sans-serif;box-shadow:0 2px 4px rgba(0,0,0,0.25);`;
-      content.textContent = i+1;
-      const overlay = new kakao.maps.CustomOverlay({ position: pos, content, yAnchor: 0.5 });
-      overlay.setMap(map);
-      markers.push(overlay);
-      path.push(pos);
-      bounds.extend(pos);
+  function makeIcon(idx){
+    return L.divIcon({
+      className: '',
+      html: `<div style="width:28px;height:28px;border-radius:50%;background:${idx===0?'#BD5333':'#2B3F4F'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:Pretendard,sans-serif;box-shadow:0 2px 4px rgba(0,0,0,0.25);">${idx+1}</div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
     });
-    if(path.length > 1){
-      polyline = new kakao.maps.Polyline({ path, strokeWeight:3, strokeColor:'#BD5333', strokeOpacity:0.85, strokeStyle:'shortdash' });
-      polyline.setMap(map);
+  }
+
+  function drawMap(){
+    markers.forEach(m => m.remove());
+    markers = [];
+    if(polyline){ polyline.remove(); polyline = null; }
+    if(stops.length === 0) return;
+
+    const latlngs = [];
+    stops.forEach((s, i) => {
+      const pos = [s.lat, s.lng];
+      const marker = L.marker(pos, { icon: makeIcon(i) }).addTo(map);
+      marker.bindPopup(`<b>${s.name}</b>`);
+      markers.push(marker);
+      latlngs.push(pos);
+    });
+
+    if(latlngs.length > 1){
+      polyline = L.polyline(latlngs, {
+        color: '#BD5333',
+        weight: 3,
+        opacity: 0.85,
+        dashArray: '8, 6'
+      }).addTo(map);
     }
-    map.setBounds(bounds);
+
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.15));
   }
 
   document.getElementById('searchBtn').addEventListener('click', doSearch);
@@ -352,10 +361,8 @@
     document.getElementById('results').innerHTML = '';
     renderItinerary();
   });
-  window.addEventListener('load', () => {
-    if(typeof kakao === 'undefined') document.getElementById('mapBanner').classList.add('show');
-  });
+
+  initMap();
 </script>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ae2f607d2457a2fb67d984328dede539&libraries=services" onload="initMap()" onerror="document.getElementById('mapBanner').classList.add('show')"></script>
 </body>
 </html>
