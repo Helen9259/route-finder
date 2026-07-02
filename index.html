@@ -447,7 +447,7 @@ async function shareItinerary() {
   }
 }
 
-// ── Search via kakao.maps.services.Places ──
+// ── Search: 장소명(Places) + 주소(Geocoder) 병렬 검색 ──
 function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
@@ -456,22 +456,31 @@ function doSearch() {
   btn.style.opacity = '0.5';
 
   const center = map.getCenter();
-  ps.keywordSearch(q, function(result, status) {
+  const gc = new kakao.maps.services.Geocoder();
+  let keywordDone = false, geocodeDone = false;
+  let keywordItems = [], geocodeItems = [];
+
+  function onBothDone() {
+    if (!keywordDone || !geocodeDone) return;
     btn.textContent = '검색';
     btn.style.opacity = '';
+
+    // 주소 결과 중 장소 결과와 좌표가 겹치는 것 제거
+    const keyCoords = new Set(keywordItems.map(p => `${p.x},${p.y}`));
+    const merged = [...keywordItems, ...geocodeItems.filter(p => !keyCoords.has(`${p.x},${p.y}`))];
 
     const sec = document.getElementById('resultsSection');
     const el = document.getElementById('results');
     el.innerHTML = '';
 
-    if (status !== kakao.maps.services.Status.OK || !result || result.length === 0) {
+    if (merged.length === 0) {
       el.innerHTML = '<div class="empty-state">검색 결과가 없어요. 다른 이름으로 시도해보세요.</div>';
       sec.style.display = '';
       return;
     }
 
-    lastResults = result;
-    result.forEach((place, idx) => {
+    lastResults = merged;
+    merged.forEach((place, idx) => {
       const card = document.createElement('div');
       card.className = 'result-card';
       const cat = place.category_group_name || '';
@@ -484,7 +493,7 @@ function doSearch() {
             <span class="result-name">${place.place_name}</span>
             ${cat ? `<span class="result-cat">${cat}</span>` : ''}
           </div>
-          <div class="result-addr">${place.road_address_name || place.address_name}</div>
+          <div class="result-addr">${place.road_address_name || place.address_name || ''}</div>
         </div>
         <button class="add-btn" data-idx="${idx}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -498,14 +507,35 @@ function doSearch() {
     });
 
     sec.style.display = '';
-    if (result[0]) {
-      map.setCenter(new kakao.maps.LatLng(parseFloat(result[0].y), parseFloat(result[0].x)));
+    if (merged[0]) {
+      map.setCenter(new kakao.maps.LatLng(parseFloat(merged[0].y), parseFloat(merged[0].x)));
       map.setLevel(4);
     }
-  }, {
-    location: center,
-    radius: 20000,
-    size: 6
+  }
+
+  // 1) 장소명 검색
+  ps.keywordSearch(q, function(result, status) {
+    if (status === kakao.maps.services.Status.OK && result && result.length > 0) {
+      keywordItems = result;
+    }
+    keywordDone = true;
+    onBothDone();
+  }, { location: center, radius: 20000, size: 6 });
+
+  // 2) 주소 검색 — Geocoder 결과를 Places 포맷으로 정규화
+  gc.addressSearch(q, function(result, status) {
+    if (status === kakao.maps.services.Status.OK && result && result.length > 0) {
+      geocodeItems = result.slice(0, 3).map(r => ({
+        place_name: r.address_name,
+        road_address_name: r.road_address ? r.road_address.address_name : '',
+        address_name: r.address_name,
+        category_group_name: '주소',
+        x: r.x,
+        y: r.y
+      }));
+    }
+    geocodeDone = true;
+    onBothDone();
   });
 }
 
