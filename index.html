@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
@@ -237,6 +238,17 @@ body{
   transition:opacity .2s,transform .2s;z-index:9999;white-space:nowrap;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Shared Banner ── */
+.shared-banner{
+  display:none;
+  margin:0 20px 14px;
+  background:#EFF4FF;border:1px solid #BFDBFE;border-radius:10px;
+  padding:10px 14px;font-size:13px;color:#1D4ED8;font-weight:600;
+  gap:8px;align-items:center;
+}
+.shared-banner.show{display:flex;}
+.shared-banner svg{flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -250,6 +262,12 @@ body{
       <div class="logo-badge"><div class="logo-dot"></div></div>
       <span class="app-name">루트핀</span>
       <span class="course-label" id="courseLabel">동선 없음</span>
+    </div>
+
+    <!-- Shared Banner -->
+    <div class="shared-banner" id="sharedBanner">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+      공유받은 동선이에요
     </div>
 
     <!-- Search -->
@@ -346,7 +364,7 @@ function initApp() {
   document.getElementById('zoomOut').addEventListener('click', () => map.setLevel(map.getLevel() + 1));
 
   renderItinerary();
-  loadFromHash();
+  loadFromQuery();
 }
 
 // ── Utils ──
@@ -370,10 +388,11 @@ function showToast(msg) {
 function shareItinerary() {
   if (stops.length === 0) return;
   try {
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(stops))));
-    const url = `${location.origin}${location.pathname}#s=${encoded}`;
+    const minimal = stops.map(s => ({ name: s.name, lat: s.lat, lng: s.lng }));
+    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(minimal));
+    const url = `${location.origin}${location.pathname}?d=${compressed}`;
     navigator.clipboard.writeText(url).then(() => {
-      showToast('공유 링크가 클립보드에 복사됐어요!');
+      showToast('링크가 복사됐어요');
     }).catch(() => {
       prompt('아래 링크를 복사하세요:', url);
     });
@@ -382,17 +401,23 @@ function shareItinerary() {
   }
 }
 
-function loadFromHash() {
-  const hash = location.hash;
-  if (!hash.startsWith('#s=')) return;
+function loadFromQuery() {
+  const params = new URLSearchParams(location.search);
+  const d = params.get('d');
+  if (!d) return;
   try {
-    const loaded = JSON.parse(decodeURIComponent(escape(atob(hash.slice(3)))));
-    if (Array.isArray(loaded) && loaded.length > 0) {
-      stops = loaded;
-      renderItinerary();
-      showToast(`${stops.length}곳의 공유 동선을 불러왔어요!`);
-    }
-  } catch (e) {}
+    const json = LZString.decompressFromEncodedURIComponent(d);
+    if (!json) throw new Error('decompress failed');
+    const loaded = JSON.parse(json);
+    if (!Array.isArray(loaded) || loaded.length === 0) throw new Error('empty');
+    stops = loaded.map(s => ({ name: s.name, lat: s.lat, lng: s.lng, addr: '', cat: '' }));
+    renderItinerary();
+    drawMap();
+    document.getElementById('sharedBanner').classList.add('show');
+    setTimeout(() => document.getElementById('sharedBanner').classList.remove('show'), 5000);
+  } catch (e) {
+    showToast('링크가 손상되어 동선을 불러올 수 없어요.');
+  }
 }
 
 // ── Search via kakao.maps.services.Places ──
