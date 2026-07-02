@@ -1,0 +1,14 @@
+# 환경변수 / 민감 파일
+.env
+.env.*
+*.env
+
+# macOS
+.DS_Store
+
+# 에디터
+.vscode/
+.idea/
+
+# 노드 (미래에 빌드 도구 추가 시 대비)
+node_modules/
