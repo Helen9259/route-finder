@@ -16,7 +16,6 @@ body{
   color:#0F172A;
   -webkit-font-smoothing:antialiased;
 }
-
 .app{
   display:flex;
   height:100vh;
@@ -26,7 +25,6 @@ body{
 @media(max-width:768px){
   .app{flex-direction:column;height:auto;min-height:100vh;}
 }
-
 .panel{
   width:392px;
   flex-shrink:0;
@@ -39,7 +37,6 @@ body{
 @media(max-width:768px){
   .panel{width:100%;border-right:none;border-bottom:1px solid #EAEEF4;overflow:visible;}
 }
-
 .header{
   display:flex;align-items:center;gap:9px;
   padding:20px 22px 14px;flex-shrink:0;
@@ -54,7 +51,6 @@ body{
   margin-left:auto;font-size:12px;font-weight:600;color:#94A3B8;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;
 }
-
 .search-wrap{padding:0 20px 16px;flex-shrink:0;}
 .search-box{
   display:flex;align-items:center;gap:9px;height:46px;padding:0 14px;
@@ -72,7 +68,6 @@ body{
   padding:0;color:#2563EB;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;
 }
 #searchBtn:hover{opacity:.75;}
-
 .results-section{padding:0 20px;flex-shrink:0;}
 .section-label{font-size:11px;font-weight:800;letter-spacing:1px;color:#94A3B8;margin-bottom:9px;}
 .results{display:flex;flex-direction:column;gap:9px;}
@@ -99,21 +94,17 @@ body{
   border:none;border-radius:9px;padding:8px 10px;cursor:pointer;flex-shrink:0;transition:filter .15s;
 }
 .add-btn:hover{filter:brightness(.93);}
-
 .hr{height:1px;background:#EAEEF4;margin:16px 20px;flex-shrink:0;}
-
 .route-header{display:flex;align-items:center;gap:8px;padding:0 22px 6px;flex-shrink:0;}
 .route-title{font-size:14px;font-weight:800;color:#0F172A;}
 .count-chip{font-size:11px;font-weight:800;color:#2563EB;background:#EFF4FF;padding:2px 8px;border-radius:20px;}
 .route-summary{margin-left:auto;font-size:12px;font-weight:600;color:#64748B;white-space:nowrap;}
-
 .route-list{flex:1;overflow-y:auto;padding:10px 20px 4px;}
 @media(max-width:768px){.route-list{max-height:300px;}}
 .empty-state{
   font-size:13px;color:#94A3B8;text-align:center;
   padding:20px 10px;border:1px dashed #E5E7EB;border-radius:12px;
 }
-
 .stop{display:flex;gap:12px;animation:rise .2s ease both;}
 .stop-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:28px;}
 .stop-num{
@@ -136,7 +127,6 @@ body{
 .stop-dist{display:flex;align-items:center;gap:4px;color:#2563EB;font-weight:600;}
 .stop-arrival{color:#2563EB;font-weight:800;}
 .dot-sep{opacity:.45;}
-
 .action-bar{padding:14px 20px;border-top:1px solid #EAEEF4;display:flex;gap:10px;flex-shrink:0;}
 .btn-reset{
   display:flex;align-items:center;gap:6px;font-family:inherit;
@@ -160,7 +150,6 @@ body{
 }
 .btn-share:hover{background:#E5E7EB;}
 .btn-share:disabled,.btn-optimize:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;filter:none;}
-
 .map-wrap{flex:1;position:relative;min-height:360px;}
 #map{position:absolute;inset:0;}
 @media(max-width:768px){
@@ -172,7 +161,6 @@ body{
   }
   #map{position:absolute;inset:0;}
 }
-
 .map-chip{
   position:absolute;top:18px;left:18px;
   display:flex;align-items:center;gap:8px;
@@ -183,7 +171,6 @@ body{
 .chip-dot{width:8px;height:8px;border-radius:50%;background:#2563EB;}
 .chip-title{font-size:13px;font-weight:700;color:#0F172A;}
 .chip-sub{font-size:12px;color:#94A3B8;}
-
 .zoom-controls{
   position:absolute;bottom:24px;right:18px;
   display:flex;flex-direction:column;gap:4px;z-index:2;
@@ -191,12 +178,11 @@ body{
 .zoom-btn{
   width:36px;height:36px;display:flex;align-items:center;justify-content:center;
   background:#fff;border:1px solid #E5E7EB;border-radius:9px;
-  color:#64748B;font-size:18px;font-weight:400;cursor:pointer;
+  color:#64748B;font-size:18px;cursor:pointer;
   box-shadow:0 2px 8px -2px rgba(15,23,42,0.15);
   transition:background .1s,color .1s;line-height:1;font-family:inherit;
 }
 .zoom-btn:hover{background:#F1F5F9;color:#0F172A;}
-
 .toast{
   position:fixed;bottom:28px;left:50%;
   transform:translateX(-50%) translateY(20px);
@@ -209,14 +195,12 @@ body{
 </head>
 <body>
 <div class="app">
-
   <div class="panel">
     <div class="header">
       <div class="logo-badge"><div class="logo-dot"></div></div>
       <span class="app-name">루트핀</span>
       <span class="course-label" id="courseLabel">동선 없음</span>
     </div>
-
     <div class="search-wrap">
       <div class="search-box">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
@@ -224,24 +208,19 @@ body{
         <button id="searchBtn">검색</button>
       </div>
     </div>
-
     <div class="results-section" id="resultsSection" style="display:none">
       <div class="section-label">검색 결과</div>
       <div class="results" id="results"></div>
     </div>
-
     <div class="hr"></div>
-
     <div class="route-header">
       <span class="route-title">내 동선</span>
       <span class="count-chip" id="countChip">0</span>
       <span class="route-summary" id="routeSummary"></span>
     </div>
-
     <div class="route-list" id="routeList">
       <div class="empty-state">검색 후 장소를 추가하면 여기에 쌓여요</div>
     </div>
-
     <div class="action-bar">
       <button class="btn-reset" id="resetBtn">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round"><path d="M4 12a8 8 0 0113.7-5.7L20 8M20 4v4h-4"/><path d="M20 12a8 8 0 01-13.7 5.7L4 16M4 20v-4h4"/></svg>
@@ -257,7 +236,6 @@ body{
       </button>
     </div>
   </div>
-
   <div class="map-wrap">
     <div id="map"></div>
     <div class="map-chip" id="mapChip" style="display:none">
@@ -270,14 +248,12 @@ body{
       <button class="zoom-btn" id="zoomOut" title="축소">−</button>
     </div>
   </div>
-
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_APP_KEY&libraries=services&autoload=false"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ae2f607d2457a2fb67d984328dede539&libraries=services&autoload=false"></script>
 <script>
 kakao.maps.load(function() {
-
   const SEOUL_LAT = 37.5665, SEOUL_LNG = 126.9780;
   let map, ps;
   let overlays = [], polyline = null, stops = [], lastResults = [];
@@ -291,7 +267,6 @@ kakao.maps.load(function() {
   document.getElementById('zoomIn').addEventListener('click', () => map.setLevel(map.getLevel() - 1));
   document.getElementById('zoomOut').addEventListener('click', () => map.setLevel(map.getLevel() + 1));
 
-  // ── Utils ──
   function haversine(a, b) {
     const R = 6371;
     const dLat = (b.lat - a.lat) * Math.PI / 180;
@@ -308,7 +283,6 @@ kakao.maps.load(function() {
     setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  // ── Share / Load ──
   function shareItinerary() {
     if (stops.length === 0) return;
     try {
@@ -333,27 +307,23 @@ kakao.maps.load(function() {
     } catch(e) {}
   }
 
-  // ── Search ──
   function doSearch() {
     const q = document.getElementById('searchInput').value.trim();
     if (!q) return;
     const btn = document.getElementById('searchBtn');
     btn.textContent = '검색 중…';
     btn.style.opacity = '0.5';
-
     ps.keywordSearch(q, function(result, status) {
       btn.textContent = '검색';
       btn.style.opacity = '';
       const sec = document.getElementById('resultsSection');
       const el = document.getElementById('results');
       el.innerHTML = '';
-
       if (status !== kakao.maps.services.Status.OK || !result || result.length === 0) {
         el.innerHTML = '<div class="empty-state">검색 결과가 없어요. 다른 이름으로 시도해보세요.</div>';
         sec.style.display = '';
         return;
       }
-
       lastResults = result;
       result.forEach((place, idx) => {
         const card = document.createElement('div');
@@ -376,7 +346,6 @@ kakao.maps.load(function() {
           </button>`;
         el.appendChild(card);
       });
-
       el.querySelectorAll('.add-btn').forEach(b => {
         b.addEventListener('click', () => addStop(lastResults[parseInt(b.dataset.idx, 10)]));
       });
@@ -388,7 +357,6 @@ kakao.maps.load(function() {
     }, { location: map.getCenter(), radius: 20000, size: 6 });
   }
 
-  // ── Stops ──
   function addStop(place) {
     stops.push({
       name: place.place_name,
@@ -432,7 +400,6 @@ kakao.maps.load(function() {
     return t;
   }
 
-  // ── Render ──
   function renderItinerary() {
     const listEl = document.getElementById('routeList');
     const countChip = document.getElementById('countChip');
@@ -442,7 +409,6 @@ kakao.maps.load(function() {
     const chip = document.getElementById('mapChip');
     listEl.innerHTML = '';
     countChip.textContent = stops.length;
-
     if (stops.length === 0) {
       listEl.innerHTML = '<div class="empty-state">검색 후 장소를 추가하면 여기에 쌓여요</div>';
       summaryEl.textContent = '';
@@ -458,7 +424,6 @@ kakao.maps.load(function() {
       chip.style.display = '';
       document.getElementById('chipTitle').textContent = stops[0].name + (stops.length > 1 ? ' 코스' : '');
       document.getElementById('chipSub').textContent = `${stops.length}개 지점 · ${km.toFixed(1)}km`;
-
       stops.forEach((s, i) => {
         const isLast = i === stops.length - 1;
         const legKm = !isLast ? haversine(s, stops[i+1]) : null;
@@ -494,7 +459,6 @@ kakao.maps.load(function() {
           </div>`;
         listEl.appendChild(div);
       });
-
       shareBtn.disabled = false;
       listEl.querySelectorAll('.ctrl-btn').forEach(b => {
         b.addEventListener('click', () => {
@@ -508,7 +472,6 @@ kakao.maps.load(function() {
     drawMap();
   }
 
-  // ── Map ──
   function makeOverlayContent(idx) {
     const bg = idx === 0 ? '#BD5333' : '#2B3F4F';
     return `<div style="position:relative;width:36px;height:36px;">
@@ -522,39 +485,29 @@ kakao.maps.load(function() {
     overlays = [];
     if (polyline) { polyline.setMap(null); polyline = null; }
     if (stops.length === 0) return;
-
     const bounds = new kakao.maps.LatLngBounds();
     const linePath = [];
-
     stops.forEach((s, i) => {
       const pos = new kakao.maps.LatLng(s.lat, s.lng);
       bounds.extend(pos);
       linePath.push(pos);
       const overlay = new kakao.maps.CustomOverlay({
-        map: map,
-        position: pos,
+        map: map, position: pos,
         content: makeOverlayContent(i),
-        yAnchor: 0.5,
-        xAnchor: 0.5
+        yAnchor: 0.5, xAnchor: 0.5
       });
       overlays.push(overlay);
     });
-
     if (linePath.length > 1) {
       polyline = new kakao.maps.Polyline({
-        map: map,
-        path: linePath,
-        strokeWeight: 3,
-        strokeColor: '#2563EB',
-        strokeOpacity: 1,
-        strokeStyle: 'dashed'
+        map: map, path: linePath,
+        strokeWeight: 3, strokeColor: '#2563EB',
+        strokeOpacity: 1, strokeStyle: 'dashed'
       });
     }
-
     map.setBounds(bounds, 60);
   }
 
-  // ── Events ──
   document.getElementById('searchBtn').addEventListener('click', doSearch);
   document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
   document.getElementById('optimizeBtn').addEventListener('click', optimizeRoute);
@@ -570,8 +523,7 @@ kakao.maps.load(function() {
 
   renderItinerary();
   loadFromHash();
-
-}); // kakao.maps.load
+});
 </script>
 </body>
 </html>
