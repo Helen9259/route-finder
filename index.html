@@ -349,6 +349,26 @@ const SEOUL_LAT = 37.5665, SEOUL_LNG = 126.9780;
 let map, ps;
 let overlays = [], polyline = null, stops = [], lastResults = [];
 
+// ?d= 파라미터를 카카오 SDK 로드와 무관하게 즉시 파싱
+// (+ 문자가 URLSearchParams에서 공백으로 변환되는 문제를 피하기 위해
+//  location.search를 직접 파싱)
+let _pendingShared = null, _sharedLinkError = false;
+(function parseSharedParam() {
+  const match = location.search.match(/[?&]d=([^&]*)/);
+  if (!match) return;
+  const raw = match[1]; // encodeURIComponent 결과이므로 decodeURIComponent 필요
+  try {
+    const decoded = decodeURIComponent(raw);
+    const json = LZString.decompressFromEncodedURIComponent(decoded);
+    if (!json) throw new Error('decompress failed');
+    const loaded = JSON.parse(json);
+    if (!Array.isArray(loaded) || loaded.length === 0) throw new Error('empty');
+    _pendingShared = loaded.map(s => ({ name: s.name, lat: s.lat, lng: s.lng, addr: s.addr || '', cat: s.cat || '' }));
+  } catch (e) {
+    _sharedLinkError = true;
+  }
+})();
+
 function initApp() {
   const container = document.getElementById('map');
   map = new kakao.maps.Map(container, {
@@ -357,14 +377,23 @@ function initApp() {
     disableDoubleClick: false
   });
 
-  // 기본 카카오 컨트롤 비활성화 (추가하지 않으면 표시 안 됨 — 커스텀만 사용)
   ps = new kakao.maps.services.Places();
 
   document.getElementById('zoomIn').addEventListener('click', () => map.setLevel(map.getLevel() - 1));
   document.getElementById('zoomOut').addEventListener('click', () => map.setLevel(map.getLevel() + 1));
 
-  renderItinerary();
-  loadFromQuery();
+  // 공유 링크 처리: 지도 초기화 완료 후 실행 보장
+  if (_sharedLinkError) {
+    renderItinerary();
+    showToast('링크가 손상되었거나 만료됐어요.');
+  } else if (_pendingShared) {
+    stops = _pendingShared;
+    renderItinerary(); // 내부에서 drawMap() 호출하므로 별도 drawMap() 불필요
+    document.getElementById('sharedBanner').classList.add('show');
+    setTimeout(() => document.getElementById('sharedBanner').classList.remove('show'), 5000);
+  } else {
+    renderItinerary();
+  }
 }
 
 // ── Utils ──
@@ -384,13 +413,14 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── Share / Load ──
+// ── Share ──
 function shareItinerary() {
   if (stops.length === 0) return;
   try {
     const minimal = stops.map(s => ({ name: s.name, lat: s.lat, lng: s.lng }));
     const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(minimal));
-    const url = `${location.origin}${location.pathname}?d=${compressed}`;
+    // encodeURIComponent 로 감싸야 + 문자가 URL에서 공백으로 해석되지 않음
+    const url = `${location.origin}${location.pathname}?d=${encodeURIComponent(compressed)}`;
     navigator.clipboard.writeText(url).then(() => {
       showToast('링크가 복사됐어요');
     }).catch(() => {
@@ -398,25 +428,6 @@ function shareItinerary() {
     });
   } catch (e) {
     showToast('공유 링크 생성에 실패했어요.');
-  }
-}
-
-function loadFromQuery() {
-  const params = new URLSearchParams(location.search);
-  const d = params.get('d');
-  if (!d) return;
-  try {
-    const json = LZString.decompressFromEncodedURIComponent(d);
-    if (!json) throw new Error('decompress failed');
-    const loaded = JSON.parse(json);
-    if (!Array.isArray(loaded) || loaded.length === 0) throw new Error('empty');
-    stops = loaded.map(s => ({ name: s.name, lat: s.lat, lng: s.lng, addr: '', cat: '' }));
-    renderItinerary();
-    drawMap();
-    document.getElementById('sharedBanner').classList.add('show');
-    setTimeout(() => document.getElementById('sharedBanner').classList.remove('show'), 5000);
-  } catch (e) {
-    showToast('링크가 손상되어 동선을 불러올 수 없어요.');
   }
 }
 
