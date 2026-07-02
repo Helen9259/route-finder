@@ -412,20 +412,36 @@ function showToast(msg) {
 }
 
 // ── Share ──
-function shareItinerary() {
+async function shareItinerary() {
   if (stops.length === 0) return;
+  const shareBtn = document.getElementById('shareBtn');
+  shareBtn.disabled = true;
+  shareBtn.textContent = '링크 생성 중…';
   try {
     const minimal = stops.map(s => ({ name: s.name, lat: s.lat, lng: s.lng }));
     const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(minimal));
-    // encodeURIComponent로 감싸서 + 문자가 URL에서 공백으로 해석되지 않게 함
-    const url = `${location.origin}${location.pathname}?d=${encodeURIComponent(compressed)}`;
-    navigator.clipboard.writeText(url).then(() => {
-      showToast('링크가 복사됐어요');
-    }).catch(() => {
-      prompt('아래 링크를 복사하세요:', url);
+    const longUrl = `${location.origin}${location.pathname}?d=${encodeURIComponent(compressed)}`;
+
+    let finalUrl = longUrl;
+    try {
+      const res = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`);
+      if (res.ok) {
+        const short = (await res.text()).trim();
+        if (short.startsWith('https://is.gd/') || short.startsWith('http://is.gd/')) {
+          finalUrl = short;
+        }
+      }
+    } catch (_) { /* 네트워크 오류 시 긴 URL 사용 */ }
+
+    await navigator.clipboard.writeText(finalUrl).catch(() => {
+      prompt('아래 링크를 복사하세요:', finalUrl);
     });
+    showToast('링크가 복사됐어요');
   } catch (e) {
     showToast('공유 링크 생성에 실패했어요.');
+  } finally {
+    shareBtn.disabled = stops.length === 0;
+    shareBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg> 공유`;
   }
 }
 
