@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
@@ -16,6 +17,8 @@ body{
   color:#0F172A;
   -webkit-font-smoothing:antialiased;
 }
+
+/* ── Layout ── */
 .app{
   display:flex;
   height:100vh;
@@ -25,6 +28,8 @@ body{
 @media(max-width:768px){
   .app{flex-direction:column;height:auto;min-height:100vh;}
 }
+
+/* ── Panel ── */
 .panel{
   width:392px;
   flex-shrink:0;
@@ -37,24 +42,37 @@ body{
 @media(max-width:768px){
   .panel{width:100%;border-right:none;border-bottom:1px solid #EAEEF4;overflow:visible;}
 }
+
+/* ── Header ── */
 .header{
-  display:flex;align-items:center;gap:9px;
-  padding:20px 22px 14px;flex-shrink:0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:20px 22px 14px;
+  flex-shrink:0;
 }
 .logo-badge{
-  width:26px;height:26px;border-radius:8px;background:#2563EB;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:26px;height:26px;
+  border-radius:8px;
+  background:#2563EB;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
 .logo-dot{width:8px;height:8px;border-radius:50%;background:#fff;}
 .app-name{font-size:16px;font-weight:800;letter-spacing:-0.3px;color:#0F172A;}
 .course-label{
-  margin-left:auto;font-size:12px;font-weight:600;color:#94A3B8;
+  margin-left:auto;
+  font-size:12px;font-weight:600;color:#94A3B8;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;
 }
+
+/* ── Search ── */
 .search-wrap{padding:0 20px 16px;flex-shrink:0;}
 .search-box{
-  display:flex;align-items:center;gap:9px;height:46px;padding:0 14px;
-  background:#F1F5F9;border:1px solid #E5E7EB;border-radius:11px;transition:border-color .15s;
+  display:flex;align-items:center;gap:9px;
+  height:46px;padding:0 14px;
+  background:#F1F5F9;border:1px solid #E5E7EB;border-radius:11px;
+  transition:border-color .15s;
 }
 .search-box:focus-within{border-color:#2563EB;}
 .search-box svg{flex-shrink:0;}
@@ -64,16 +82,21 @@ body{
 }
 #searchInput::placeholder{color:#94A3B8;}
 #searchBtn{
-  background:none;border:none;cursor:pointer;display:flex;align-items:center;
-  padding:0;color:#2563EB;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;
+  background:none;border:none;cursor:pointer;
+  display:flex;align-items:center;padding:0;
+  color:#2563EB;font-family:inherit;font-size:13px;font-weight:700;
+  white-space:nowrap;
 }
 #searchBtn:hover{opacity:.75;}
+
+/* ── Search Results ── */
 .results-section{padding:0 20px;flex-shrink:0;}
 .section-label{font-size:11px;font-weight:800;letter-spacing:1px;color:#94A3B8;margin-bottom:9px;}
 .results{display:flex;flex-direction:column;gap:9px;}
 .result-card{
-  border:1px solid #E5E7EB;border-radius:12px;padding:12px 13px;
-  display:flex;gap:11px;align-items:flex-start;animation:rise .2s ease both;
+  border:1px solid #E5E7EB;border-radius:12px;
+  padding:12px 13px;display:flex;gap:11px;align-items:flex-start;
+  animation:rise .2s ease both;
 }
 @keyframes rise{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
 .result-icon{
@@ -89,27 +112,34 @@ body{
 }
 .result-addr{font-size:12.5px;color:#94A3B8;margin-top:3px;}
 .add-btn{
-  display:flex;align-items:center;gap:4px;font-family:inherit;
-  font-size:12.5px;font-weight:700;color:#2563EB;background:#EFF4FF;
-  border:none;border-radius:9px;padding:8px 10px;cursor:pointer;flex-shrink:0;transition:filter .15s;
+  display:flex;align-items:center;gap:4px;
+  font-family:inherit;font-size:12.5px;font-weight:700;
+  color:#2563EB;background:#EFF4FF;border:none;border-radius:9px;
+  padding:8px 10px;cursor:pointer;flex-shrink:0;transition:filter .15s;
 }
 .add-btn:hover{filter:brightness(.93);}
+
+/* ── Divider ── */
 .hr{height:1px;background:#EAEEF4;margin:16px 20px;flex-shrink:0;}
+
+/* ── Route Header ── */
 .route-header{display:flex;align-items:center;gap:8px;padding:0 22px 6px;flex-shrink:0;}
 .route-title{font-size:14px;font-weight:800;color:#0F172A;}
 .count-chip{font-size:11px;font-weight:800;color:#2563EB;background:#EFF4FF;padding:2px 8px;border-radius:20px;}
 .route-summary{margin-left:auto;font-size:12px;font-weight:600;color:#64748B;white-space:nowrap;}
+
+/* ── Route List ── */
 .route-list{flex:1;overflow-y:auto;padding:10px 20px 4px;}
 @media(max-width:768px){.route-list{max-height:300px;}}
-.empty-state{
-  font-size:13px;color:#94A3B8;text-align:center;
-  padding:20px 10px;border:1px dashed #E5E7EB;border-radius:12px;
-}
+.empty-state{font-size:13px;color:#94A3B8;text-align:center;padding:20px 10px;border:1px dashed #E5E7EB;border-radius:12px;}
+
+/* ── Route Item ── */
 .stop{display:flex;gap:12px;animation:rise .2s ease both;}
 .stop-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:28px;}
 .stop-num{
   width:28px;height:28px;border-radius:50%;background:#2563EB;color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;flex-shrink:0;
 }
 .stop-line{flex:1;width:0;border-left:2px dashed #CBD5E1;margin:5px 0 -3px;min-height:20px;}
 .stop-right{flex:1;min-width:0;padding-bottom:16px;}
@@ -127,31 +157,39 @@ body{
 .stop-dist{display:flex;align-items:center;gap:4px;color:#2563EB;font-weight:600;}
 .stop-arrival{color:#2563EB;font-weight:800;}
 .dot-sep{opacity:.45;}
+
+/* ── Action Bar ── */
 .action-bar{padding:14px 20px;border-top:1px solid #EAEEF4;display:flex;gap:10px;flex-shrink:0;}
 .btn-reset{
-  display:flex;align-items:center;gap:6px;font-family:inherit;
-  font-size:13.5px;font-weight:700;color:#64748B;background:#F1F5F9;
-  border:1px solid #E5E7EB;border-radius:11px;padding:0 15px;height:46px;
-  cursor:pointer;flex-shrink:0;white-space:nowrap;transition:background .15s;
+  display:flex;align-items:center;gap:6px;
+  font-family:inherit;font-size:13.5px;font-weight:700;
+  color:#64748B;background:#F1F5F9;border:1px solid #E5E7EB;border-radius:11px;
+  padding:0 15px;height:46px;cursor:pointer;flex-shrink:0;white-space:nowrap;
+  transition:background .15s;
 }
 .btn-reset:hover{background:#E5E7EB;}
 .btn-optimize{
   flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
-  font-family:inherit;font-size:14px;font-weight:700;color:#fff;background:#2563EB;
-  border:none;border-radius:11px;height:46px;cursor:pointer;
-  box-shadow:0 8px 18px -8px rgba(37,99,235,0.7);transition:filter .15s;
+  font-family:inherit;font-size:14px;font-weight:700;
+  color:#fff;background:#2563EB;border:none;border-radius:11px;
+  height:46px;cursor:pointer;box-shadow:0 8px 18px -8px rgba(37,99,235,0.7);
+  transition:filter .15s;
 }
 .btn-optimize:hover{filter:brightness(1.1);}
 .btn-share{
-  display:flex;align-items:center;gap:6px;font-family:inherit;
-  font-size:13.5px;font-weight:700;color:#64748B;background:#F1F5F9;
-  border:1px solid #E5E7EB;border-radius:11px;padding:0 15px;height:46px;
-  cursor:pointer;flex-shrink:0;white-space:nowrap;transition:background .15s;
+  display:flex;align-items:center;gap:6px;
+  font-family:inherit;font-size:13.5px;font-weight:700;
+  color:#64748B;background:#F1F5F9;border:1px solid #E5E7EB;border-radius:11px;
+  padding:0 15px;height:46px;cursor:pointer;flex-shrink:0;white-space:nowrap;
+  transition:background .15s;
 }
 .btn-share:hover{background:#E5E7EB;}
 .btn-share:disabled,.btn-optimize:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;filter:none;}
+
+/* ── Map ── */
 .map-wrap{flex:1;position:relative;min-height:360px;}
 #map{position:absolute;inset:0;}
+
 @media(max-width:768px){
   .map-wrap{
     height:240px;border-radius:16px;overflow:hidden;
@@ -161,6 +199,8 @@ body{
   }
   #map{position:absolute;inset:0;}
 }
+
+/* ── Map floating chip ── */
 .map-chip{
   position:absolute;top:18px;left:18px;
   display:flex;align-items:center;gap:8px;
@@ -171,18 +211,25 @@ body{
 .chip-dot{width:8px;height:8px;border-radius:50%;background:#2563EB;}
 .chip-title{font-size:13px;font-weight:700;color:#0F172A;}
 .chip-sub{font-size:12px;color:#94A3B8;}
+
+/* ── Custom Zoom Controls ── */
 .zoom-controls{
   position:absolute;bottom:24px;right:18px;
-  display:flex;flex-direction:column;gap:4px;z-index:2;
+  display:flex;flex-direction:column;gap:4px;
+  z-index:2;
 }
 .zoom-btn{
-  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
   background:#fff;border:1px solid #E5E7EB;border-radius:9px;
-  color:#64748B;font-size:18px;cursor:pointer;
-  box-shadow:0 2px 8px -2px rgba(15,23,42,0.15);
-  transition:background .1s,color .1s;line-height:1;font-family:inherit;
+  color:#64748B;font-size:18px;font-weight:400;
+  cursor:pointer;box-shadow:0 2px 8px -2px rgba(15,23,42,0.15);
+  transition:background .1s,color .1s;line-height:1;
+  font-family:inherit;
 }
 .zoom-btn:hover{background:#F1F5F9;color:#0F172A;}
+
+/* ── Toast ── */
 .toast{
   position:fixed;bottom:28px;left:50%;
   transform:translateX(-50%) translateY(20px);
@@ -191,16 +238,39 @@ body{
   transition:opacity .2s,transform .2s;z-index:9999;white-space:nowrap;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Shared Banner ── */
+.shared-banner{
+  display:none;
+  margin:0 20px 14px;
+  background:#EFF4FF;border:1px solid #BFDBFE;border-radius:10px;
+  padding:10px 14px;font-size:13px;color:#1D4ED8;font-weight:600;
+  gap:8px;align-items:center;
+}
+.shared-banner.show{display:flex;}
+.shared-banner svg{flex-shrink:0;}
 </style>
 </head>
 <body>
 <div class="app">
+
+  <!-- ── Side Panel ── -->
   <div class="panel">
+
+    <!-- Header -->
     <div class="header">
       <div class="logo-badge"><div class="logo-dot"></div></div>
       <span class="app-name">루트핀</span>
       <span class="course-label" id="courseLabel">동선 없음</span>
     </div>
+
+    <!-- Shared Banner -->
+    <div class="shared-banner" id="sharedBanner">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+      공유받은 동선이에요
+    </div>
+
+    <!-- Search -->
     <div class="search-wrap">
       <div class="search-box">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
@@ -208,19 +278,28 @@ body{
         <button id="searchBtn">검색</button>
       </div>
     </div>
+
+    <!-- Search Results -->
     <div class="results-section" id="resultsSection" style="display:none">
       <div class="section-label">검색 결과</div>
       <div class="results" id="results"></div>
     </div>
+
     <div class="hr"></div>
+
+    <!-- Route Header -->
     <div class="route-header">
       <span class="route-title">내 동선</span>
       <span class="count-chip" id="countChip">0</span>
       <span class="route-summary" id="routeSummary"></span>
     </div>
+
+    <!-- Route List -->
     <div class="route-list" id="routeList">
       <div class="empty-state">검색 후 장소를 추가하면 여기에 쌓여요</div>
     </div>
+
+    <!-- Action Bar -->
     <div class="action-bar">
       <button class="btn-reset" id="resetBtn">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round"><path d="M4 12a8 8 0 0113.7-5.7L20 8M20 4v4h-4"/><path d="M20 12a8 8 0 01-13.7 5.7L4 16M4 20v-4h4"/></svg>
@@ -235,7 +314,10 @@ body{
         공유
       </button>
     </div>
+
   </div>
+
+  <!-- ── Map ── -->
   <div class="map-wrap">
     <div id="map"></div>
     <div class="map-chip" id="mapChip" style="display:none">
@@ -248,281 +330,340 @@ body{
       <button class="zoom-btn" id="zoomOut" title="축소">−</button>
     </div>
   </div>
+
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- Kakao Maps SDK (autoload=false로 안정적 초기화) -->
+<script>
+window.kakaoMapsReady = function() {
+  initApp();
+};
+</script>
 <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ae2f607d2457a2fb67d984328dede539&libraries=services&autoload=false"></script>
 <script>
-kakao.maps.load(function() {
-  const SEOUL_LAT = 37.5665, SEOUL_LNG = 126.9780;
-  let map, ps;
-  let overlays = [], polyline = null, stops = [], lastResults = [];
+kakao.maps.load(window.kakaoMapsReady);
 
-  map = new kakao.maps.Map(document.getElementById('map'), {
+const SEOUL_LAT = 37.5665, SEOUL_LNG = 126.9780;
+
+let map, ps;
+let overlays = [], polyline = null, stops = [], lastResults = [];
+
+function initApp() {
+  const container = document.getElementById('map');
+  map = new kakao.maps.Map(container, {
     center: new kakao.maps.LatLng(SEOUL_LAT, SEOUL_LNG),
-    level: 7
+    level: 7,
+    disableDoubleClick: false
   });
+
   ps = new kakao.maps.services.Places();
 
   document.getElementById('zoomIn').addEventListener('click', () => map.setLevel(map.getLevel() - 1));
   document.getElementById('zoomOut').addEventListener('click', () => map.setLevel(map.getLevel() + 1));
 
-  function haversine(a, b) {
-    const R = 6371;
-    const dLat = (b.lat - a.lat) * Math.PI / 180;
-    const dLng = (b.lng - a.lng) * Math.PI / 180;
-    const la1 = a.lat * Math.PI / 180, la2 = b.lat * Math.PI / 180;
-    const h = Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;
-    return 2 * R * Math.asin(Math.sqrt(h));
-  }
+  renderItinerary();
+  loadFromQuery();
+}
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-  }
+// ── Utils ──
+function haversine(a, b) {
+  const R = 6371;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+  const la1 = a.lat * Math.PI / 180, la2 = b.lat * Math.PI / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
 
-  function shareItinerary() {
-    if (stops.length === 0) return;
-    try {
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(stops))));
-      const url = `${location.origin}${location.pathname}#s=${encoded}`;
-      navigator.clipboard.writeText(url).then(() => {
-        showToast('공유 링크가 클립보드에 복사됐어요!');
-      }).catch(() => { prompt('아래 링크를 복사하세요:', url); });
-    } catch(e) { showToast('공유 링크 생성에 실패했어요.'); }
-  }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
 
-  function loadFromHash() {
-    const hash = location.hash;
-    if (!hash.startsWith('#s=')) return;
-    try {
-      const loaded = JSON.parse(decodeURIComponent(escape(atob(hash.slice(3)))));
-      if (Array.isArray(loaded) && loaded.length > 0) {
-        stops = loaded;
-        renderItinerary();
-        showToast(`${stops.length}곳의 공유 동선을 불러왔어요!`);
-      }
-    } catch(e) {}
-  }
-
-  function doSearch() {
-    const q = document.getElementById('searchInput').value.trim();
-    if (!q) return;
-    const btn = document.getElementById('searchBtn');
-    btn.textContent = '검색 중…';
-    btn.style.opacity = '0.5';
-    ps.keywordSearch(q, function(result, status) {
-      btn.textContent = '검색';
-      btn.style.opacity = '';
-      const sec = document.getElementById('resultsSection');
-      const el = document.getElementById('results');
-      el.innerHTML = '';
-      if (status !== kakao.maps.services.Status.OK || !result || result.length === 0) {
-        el.innerHTML = '<div class="empty-state">검색 결과가 없어요. 다른 이름으로 시도해보세요.</div>';
-        sec.style.display = '';
-        return;
-      }
-      lastResults = result;
-      result.forEach((place, idx) => {
-        const card = document.createElement('div');
-        card.className = 'result-card';
-        const cat = place.category_group_name || '';
-        card.innerHTML = `
-          <div class="result-icon">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
-          </div>
-          <div class="result-body">
-            <div class="result-name-row">
-              <span class="result-name">${place.place_name}</span>
-              ${cat ? `<span class="result-cat">${cat}</span>` : ''}
-            </div>
-            <div class="result-addr">${place.road_address_name || place.address_name}</div>
-          </div>
-          <button class="add-btn" data-idx="${idx}">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-            추가
-          </button>`;
-        el.appendChild(card);
-      });
-      el.querySelectorAll('.add-btn').forEach(b => {
-        b.addEventListener('click', () => addStop(lastResults[parseInt(b.dataset.idx, 10)]));
-      });
-      sec.style.display = '';
-      if (result[0]) {
-        map.setCenter(new kakao.maps.LatLng(parseFloat(result[0].y), parseFloat(result[0].x)));
-        map.setLevel(4);
-      }
-    }, { location: map.getCenter(), radius: 20000, size: 6 });
-  }
-
-  function addStop(place) {
-    stops.push({
-      name: place.place_name,
-      addr: place.road_address_name || place.address_name,
-      cat: place.category_group_name || '',
-      lat: parseFloat(place.y),
-      lng: parseFloat(place.x)
+// ── Share / Load ──
+function shareItinerary() {
+  if (stops.length === 0) return;
+  try {
+    const minimal = stops.map(s => ({ name: s.name, lat: s.lat, lng: s.lng }));
+    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(minimal));
+    const url = `${location.origin}${location.pathname}?d=${compressed}`;
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('링크가 복사됐어요');
+    }).catch(() => {
+      prompt('아래 링크를 복사하세요:', url);
     });
+  } catch (e) {
+    showToast('공유 링크 생성에 실패했어요.');
+  }
+}
+
+function loadFromQuery() {
+  const params = new URLSearchParams(location.search);
+  const d = params.get('d');
+  if (!d) return;
+  try {
+    const json = LZString.decompressFromEncodedURIComponent(d);
+    if (!json) throw new Error('decompress failed');
+    const loaded = JSON.parse(json);
+    if (!Array.isArray(loaded) || loaded.length === 0) throw new Error('empty');
+    stops = loaded.map(s => ({ name: s.name, lat: s.lat, lng: s.lng, addr: '', cat: '' }));
     renderItinerary();
-    showToast(`${place.place_name}을(를) 동선에 추가했어요`);
-  }
-
-  function removeStop(i) { stops.splice(i, 1); renderItinerary(); }
-
-  function moveStop(i, dir) {
-    const j = i + dir;
-    if (j < 0 || j >= stops.length) return;
-    [stops[i], stops[j]] = [stops[j], stops[i]];
-    renderItinerary();
-  }
-
-  function optimizeRoute() {
-    if (stops.length < 3) { showToast('3곳 이상일 때 최적화할 수 있어요'); return; }
-    const ordered = [stops[0]];
-    let remaining = stops.slice(1), current = stops[0];
-    while (remaining.length) {
-      let bestIdx = 0, bestDist = Infinity;
-      remaining.forEach((s, idx) => { const d = haversine(current, s); if (d < bestDist) { bestDist = d; bestIdx = idx; } });
-      current = remaining[bestIdx];
-      ordered.push(current);
-      remaining.splice(bestIdx, 1);
-    }
-    stops = ordered;
-    renderItinerary();
-    showToast('동선을 최적화했어요!');
-  }
-
-  function totalKm() {
-    let t = 0;
-    for (let i = 0; i < stops.length - 1; i++) t += haversine(stops[i], stops[i+1]);
-    return t;
-  }
-
-  function renderItinerary() {
-    const listEl = document.getElementById('routeList');
-    const countChip = document.getElementById('countChip');
-    const summaryEl = document.getElementById('routeSummary');
-    const shareBtn = document.getElementById('shareBtn');
-    const labelEl = document.getElementById('courseLabel');
-    const chip = document.getElementById('mapChip');
-    listEl.innerHTML = '';
-    countChip.textContent = stops.length;
-    if (stops.length === 0) {
-      listEl.innerHTML = '<div class="empty-state">검색 후 장소를 추가하면 여기에 쌓여요</div>';
-      summaryEl.textContent = '';
-      shareBtn.disabled = true;
-      labelEl.textContent = '동선 없음';
-      chip.style.display = 'none';
-    } else {
-      const km = totalKm();
-      const walkMin = Math.round(km / 4 * 60);
-      const walkStr = walkMin >= 60 ? `${Math.floor(walkMin/60)}시간 ${walkMin%60}분` : `${walkMin}분`;
-      summaryEl.textContent = `총 ${km.toFixed(1)}km · 도보 ${walkStr}`;
-      labelEl.textContent = stops[0].name + (stops.length > 1 ? ` 외 ${stops.length-1}곳` : '');
-      chip.style.display = '';
-      document.getElementById('chipTitle').textContent = stops[0].name + (stops.length > 1 ? ' 코스' : '');
-      document.getElementById('chipSub').textContent = `${stops.length}개 지점 · ${km.toFixed(1)}km`;
-      stops.forEach((s, i) => {
-        const isLast = i === stops.length - 1;
-        const legKm = !isLast ? haversine(s, stops[i+1]) : null;
-        const div = document.createElement('div');
-        div.className = 'stop';
-        div.innerHTML = `
-          <div class="stop-left">
-            <div class="stop-num">${i+1}</div>
-            ${!isLast ? '<div class="stop-line"></div>' : ''}
-          </div>
-          <div class="stop-right${isLast ? ' last' : ''}">
-            <div class="stop-name-row">
-              <span class="stop-name">${s.name}</span>
-              <div class="stop-controls">
-                <button class="ctrl-btn" data-act="up" data-i="${i}">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 15l6-6 6 6"/></svg>
-                </button>
-                <button class="ctrl-btn" data-act="down" data-i="${i}">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-                </button>
-                <button class="ctrl-btn" data-act="del" data-i="${i}">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"/></svg>
-                </button>
-              </div>
-            </div>
-            <div class="stop-meta">
-              ${s.cat ? `<span>${s.cat}</span>` : ''}
-              ${legKm !== null
-                ? `${s.cat ? '<span class="dot-sep">·</span>' : ''}<span class="stop-dist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 19L18 5" stroke-dasharray="2 3"/></svg>다음까지 ${legKm.toFixed(1)}km</span>`
-                : `<span class="stop-arrival">도착</span>`
-              }
-            </div>
-          </div>`;
-        listEl.appendChild(div);
-      });
-      shareBtn.disabled = false;
-      listEl.querySelectorAll('.ctrl-btn').forEach(b => {
-        b.addEventListener('click', () => {
-          const i = parseInt(b.dataset.i, 10);
-          if (b.dataset.act === 'up') moveStop(i, -1);
-          else if (b.dataset.act === 'down') moveStop(i, 1);
-          else removeStop(i);
-        });
-      });
-    }
     drawMap();
+    document.getElementById('sharedBanner').classList.add('show');
+    setTimeout(() => document.getElementById('sharedBanner').classList.remove('show'), 5000);
+  } catch (e) {
+    showToast('링크가 손상되어 동선을 불러올 수 없어요.');
   }
+}
 
-  function makeOverlayContent(idx) {
-    const bg = idx === 0 ? '#BD5333' : '#2B3F4F';
-    return `<div style="position:relative;width:36px;height:36px;">
-      <div style="position:absolute;inset:0;border-radius:50%;background:${bg};opacity:.15;"></div>
-      <div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:${bg};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;font-family:'Pretendard',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.2);">${idx+1}</div>
-    </div>`;
-  }
+// ── Search via kakao.maps.services.Places ──
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const btn = document.getElementById('searchBtn');
+  btn.textContent = '검색 중…';
+  btn.style.opacity = '0.5';
 
-  function drawMap() {
-    overlays.forEach(o => o.setMap(null));
-    overlays = [];
-    if (polyline) { polyline.setMap(null); polyline = null; }
-    if (stops.length === 0) return;
-    const bounds = new kakao.maps.LatLngBounds();
-    const linePath = [];
-    stops.forEach((s, i) => {
-      const pos = new kakao.maps.LatLng(s.lat, s.lng);
-      bounds.extend(pos);
-      linePath.push(pos);
-      const overlay = new kakao.maps.CustomOverlay({
-        map: map, position: pos,
-        content: makeOverlayContent(i),
-        yAnchor: 0.5, xAnchor: 0.5
-      });
-      overlays.push(overlay);
-    });
-    if (linePath.length > 1) {
-      polyline = new kakao.maps.Polyline({
-        map: map, path: linePath,
-        strokeWeight: 3, strokeColor: '#2563EB',
-        strokeOpacity: 1, strokeStyle: 'dashed'
-      });
+  const center = map.getCenter();
+  ps.keywordSearch(q, function(result, status) {
+    btn.textContent = '검색';
+    btn.style.opacity = '';
+
+    const sec = document.getElementById('resultsSection');
+    const el = document.getElementById('results');
+    el.innerHTML = '';
+
+    if (status !== kakao.maps.services.Status.OK || !result || result.length === 0) {
+      el.innerHTML = '<div class="empty-state">검색 결과가 없어요. 다른 이름으로 시도해보세요.</div>';
+      sec.style.display = '';
+      return;
     }
-    map.setBounds(bounds, 60);
-  }
 
-  document.getElementById('searchBtn').addEventListener('click', doSearch);
-  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
-  document.getElementById('optimizeBtn').addEventListener('click', optimizeRoute);
-  document.getElementById('shareBtn').addEventListener('click', shareItinerary);
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    if (stops.length === 0) return;
-    stops = [];
-    document.getElementById('results').innerHTML = '';
-    document.getElementById('resultsSection').style.display = 'none';
-    history.replaceState(null, '', location.pathname);
-    renderItinerary();
+    lastResults = result;
+    result.forEach((place, idx) => {
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      const cat = place.category_group_name || '';
+      card.innerHTML = `
+        <div class="result-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        </div>
+        <div class="result-body">
+          <div class="result-name-row">
+            <span class="result-name">${place.place_name}</span>
+            ${cat ? `<span class="result-cat">${cat}</span>` : ''}
+          </div>
+          <div class="result-addr">${place.road_address_name || place.address_name}</div>
+        </div>
+        <button class="add-btn" data-idx="${idx}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          추가
+        </button>`;
+      el.appendChild(card);
+    });
+
+    el.querySelectorAll('.add-btn').forEach(b => {
+      b.addEventListener('click', () => addStop(lastResults[parseInt(b.dataset.idx, 10)]));
+    });
+
+    sec.style.display = '';
+    if (result[0]) {
+      map.setCenter(new kakao.maps.LatLng(parseFloat(result[0].y), parseFloat(result[0].x)));
+      map.setLevel(4);
+    }
+  }, {
+    location: center,
+    radius: 20000,
+    size: 6
+  });
+}
+
+// ── Stops CRUD ──
+function addStop(place) {
+  stops.push({
+    name: place.place_name,
+    addr: place.road_address_name || place.address_name,
+    cat: place.category_group_name || '',
+    lat: parseFloat(place.y),
+    lng: parseFloat(place.x)
+  });
+  renderItinerary();
+  showToast(`${place.place_name}을(를) 동선에 추가했어요`);
+}
+
+function removeStop(i) { stops.splice(i, 1); renderItinerary(); }
+
+function moveStop(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= stops.length) return;
+  [stops[i], stops[j]] = [stops[j], stops[i]];
+  renderItinerary();
+}
+
+function optimizeRoute() {
+  if (stops.length < 3) { showToast('3곳 이상일 때 최적화할 수 있어요'); return; }
+  const ordered = [stops[0]];
+  let remaining = stops.slice(1), current = stops[0];
+  while (remaining.length) {
+    let bestIdx = 0, bestDist = Infinity;
+    remaining.forEach((s, idx) => {
+      const d = haversine(current, s);
+      if (d < bestDist) { bestDist = d; bestIdx = idx; }
+    });
+    current = remaining[bestIdx];
+    ordered.push(current);
+    remaining.splice(bestIdx, 1);
+  }
+  stops = ordered;
+  renderItinerary();
+  showToast('동선을 최적화했어요!');
+}
+
+function totalKm() {
+  let t = 0;
+  for (let i = 0; i < stops.length - 1; i++) t += haversine(stops[i], stops[i + 1]);
+  return t;
+}
+
+// ── Render list ──
+function renderItinerary() {
+  const listEl = document.getElementById('routeList');
+  const countChip = document.getElementById('countChip');
+  const summaryEl = document.getElementById('routeSummary');
+  const shareBtn = document.getElementById('shareBtn');
+  const labelEl = document.getElementById('courseLabel');
+  const chip = document.getElementById('mapChip');
+  listEl.innerHTML = '';
+  countChip.textContent = stops.length;
+
+  if (stops.length === 0) {
+    listEl.innerHTML = '<div class="empty-state">검색 후 장소를 추가하면 여기에 쌓여요</div>';
+    summaryEl.textContent = '';
+    shareBtn.disabled = true;
+    labelEl.textContent = '동선 없음';
+    chip.style.display = 'none';
+  } else {
+    const km = totalKm();
+    const walkMin = Math.round(km / 4 * 60);
+    const walkStr = walkMin >= 60 ? `${Math.floor(walkMin / 60)}시간 ${walkMin % 60}분` : `${walkMin}분`;
+    summaryEl.textContent = `총 ${km.toFixed(1)}km · 도보 ${walkStr}`;
+    labelEl.textContent = stops[0].name + (stops.length > 1 ? ` 외 ${stops.length - 1}곳` : '');
+
+    chip.style.display = '';
+    document.getElementById('chipTitle').textContent = stops[0].name + (stops.length > 1 ? ' 코스' : '');
+    document.getElementById('chipSub').textContent = `${stops.length}개 지점 · ${km.toFixed(1)}km`;
+
+    stops.forEach((s, i) => {
+      const isLast = i === stops.length - 1;
+      const legKm = !isLast ? haversine(s, stops[i + 1]) : null;
+      const div = document.createElement('div');
+      div.className = 'stop';
+      div.innerHTML = `
+        <div class="stop-left">
+          <div class="stop-num">${i + 1}</div>
+          ${!isLast ? '<div class="stop-line"></div>' : ''}
+        </div>
+        <div class="stop-right${isLast ? ' last' : ''}">
+          <div class="stop-name-row">
+            <span class="stop-name">${s.name}</span>
+            <div class="stop-controls">
+              <button class="ctrl-btn" data-act="up" data-i="${i}" title="위로">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 15l6-6 6 6"/></svg>
+              </button>
+              <button class="ctrl-btn" data-act="down" data-i="${i}" title="아래로">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <button class="ctrl-btn" data-act="del" data-i="${i}" title="삭제">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="stop-meta">
+            ${s.cat ? `<span>${s.cat}</span>` : ''}
+            ${legKm !== null
+              ? `${s.cat ? '<span class="dot-sep">·</span>' : ''}<span class="stop-dist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 19L18 5" stroke-dasharray="2 3"/></svg>다음까지 ${legKm.toFixed(1)}km</span>`
+              : `<span class="stop-arrival">도착</span>`
+            }
+          </div>
+        </div>`;
+      listEl.appendChild(div);
+    });
+
+    shareBtn.disabled = false;
+    listEl.querySelectorAll('.ctrl-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        const i = parseInt(b.dataset.i, 10);
+        if (b.dataset.act === 'up') moveStop(i, -1);
+        else if (b.dataset.act === 'down') moveStop(i, 1);
+        else removeStop(i);
+      });
+    });
+  }
+  drawMap();
+}
+
+// ── Map drawing with CustomOverlay ──
+function makeOverlayContent(idx) {
+  const bg = idx === 0 ? '#BD5333' : '#2B3F4F';
+  return `<div style="position:relative;width:36px;height:36px;cursor:default;">
+    <div style="position:absolute;inset:0;border-radius:50%;background:${bg};opacity:.15;"></div>
+    <div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:${bg};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;font-family:'Pretendard',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.2);">${idx + 1}</div>
+  </div>`;
+}
+
+function drawMap() {
+  overlays.forEach(o => o.setMap(null));
+  overlays = [];
+  if (polyline) { polyline.setMap(null); polyline = null; }
+  if (!map || stops.length === 0) return;
+
+  const bounds = new kakao.maps.LatLngBounds();
+  const linePath = [];
+
+  stops.forEach((s, i) => {
+    const pos = new kakao.maps.LatLng(s.lat, s.lng);
+    bounds.extend(pos);
+    linePath.push(pos);
+
+    const overlay = new kakao.maps.CustomOverlay({
+      map: map,
+      position: pos,
+      content: makeOverlayContent(i),
+      yAnchor: 0.5,
+      xAnchor: 0.5
+    });
+    overlays.push(overlay);
   });
 
+  if (linePath.length > 1) {
+    polyline = new kakao.maps.Polyline({
+      map: map,
+      path: linePath,
+      strokeWeight: 3,
+      strokeColor: '#2563EB',
+      strokeOpacity: 1,
+      strokeStyle: 'dashed'
+    });
+  }
+
+  map.setBounds(bounds, 60);
+}
+
+// ── Event listeners ──
+document.getElementById('searchBtn').addEventListener('click', doSearch);
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+document.getElementById('optimizeBtn').addEventListener('click', optimizeRoute);
+document.getElementById('shareBtn').addEventListener('click', shareItinerary);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (stops.length === 0) return;
+  stops = [];
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('resultsSection').style.display = 'none';
+  history.replaceState(null, '', location.pathname);
   renderItinerary();
-  loadFromHash();
 });
 </script>
 </body>
