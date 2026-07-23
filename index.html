@@ -593,6 +593,7 @@ async function shareItinerary() {
 function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
+  if (!map || !ps) { showToast('지도가 아직 로딩 중이에요. 잠시 후 다시 시도해주세요.'); return; }
   const btn = document.getElementById('searchBtn');
   btn.textContent = '검색 중…';
   btn.style.opacity = '0.5';
@@ -601,11 +602,17 @@ function doSearch() {
   const gc = new kakao.maps.services.Geocoder();
   let keywordDone = false, geocodeDone = false;
   let keywordItems = [], geocodeItems = [];
+  let keywordError = false;
 
   function onBothDone() {
     if (!keywordDone || !geocodeDone) return;
     btn.textContent = '검색';
     btn.style.opacity = '';
+
+    if (keywordError) {
+      showToast('카카오 지도 API 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+      return;
+    }
 
     const keyCoords = new Set(keywordItems.map(p => `${p.x},${p.y}`));
     const merged = [...keywordItems, ...geocodeItems.filter(p => !keyCoords.has(`${p.x},${p.y}`))];
@@ -655,7 +662,11 @@ function doSearch() {
   }
 
   ps.keywordSearch(q, function(result, status) {
-    if (status === kakao.maps.services.Status.OK && result && result.length > 0) keywordItems = result;
+    if (status === kakao.maps.services.Status.OK && result && result.length > 0) {
+      keywordItems = result;
+    } else if (status === kakao.maps.services.Status.ERROR) {
+      keywordError = true;
+    }
     keywordDone = true;
     onBothDone();
   }, { location: center, radius: 20000, size: 6 });
